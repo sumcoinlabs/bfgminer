@@ -1220,7 +1220,7 @@ ssize_t _serial_read(int fd, char *buf, size_t bufsiz, char *eol)
 {
 	ssize_t len, tlen = 0;
 	while (bufsiz) {
-        applog(LOG_WARNING, "Test8");
+        //applog(LOG_WARNING, "Test8");
 		len = read(fd, buf, eol ? 1 : bufsiz);
         applog(LOG_WARNING, "Test9");
         
