@@ -282,6 +282,7 @@ bool alchemist_detect_one(const char * const devpath)
 		for (unsigned i = 0; i < alchemist_max_chips; ++i)
 		{
             applog(LOG_DEBUG, "%s: %s %s", alchemist_drv.dname, "Test4", devpath);
+            serial_read(fd, buf, 9);
 			struct alchemist_chip * const chip = &chips[i];
 			alchemist_chip_init(chip, i);
             chip->freq = freq;
