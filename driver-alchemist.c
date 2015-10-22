@@ -281,6 +281,7 @@ bool alchemist_detect_one(const char * const devpath)
 		uint8_t buf[9];
 		for (unsigned i = 0; i < alchemist_max_chips; ++i)
 		{
+            applog(LOG_DEBUG, "%s: %s %s", alchemist_drv.dname, "Test4", devpath);
 			struct alchemist_chip * const chip = &chips[i];
 			alchemist_chip_init(chip, i);
             chip->freq = freq;
@@ -289,9 +290,10 @@ bool alchemist_detect_one(const char * const devpath)
 				return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", alchemist_drv.dname, "init PLL", devpath);
 			if (!alchemist_send_golden(fd, chip, true, alchemist_g_head, NULL))
 				return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", alchemist_drv.dname, "send scan job", devpath);
-			
+			applog(LOG_DEBUG, "%s: %s %s", alchemist_drv.dname, "Test5", devpath);
 			while (serial_read(fd, buf, 9) == 9)
 			{
+                applog(LOG_DEBUG, "%s: %s %s", alchemist_drv.dname, "Test6", devpath);
 				const uint8_t chipid = buf[8];
 				if (chipid >= alchemist_max_chips)
 					applog(LOG_DEBUG, "%s: Bad %s id (%u) during scan of %s chip %u", alchemist_drv.dname, "chip", chipid, devpath, i);
