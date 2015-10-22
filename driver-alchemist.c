@@ -264,7 +264,7 @@ bool alchemist_detect_one(const char * const devpath)
 	applog(LOG_DEBUG, "%s: %s %s", alchemist_drv.dname, "Successfully opened", devpath);
     
     alchemist_reset_board(devpath);
-    
+    applog(LOG_DEBUG, "%s: %s %s", alchemist_drv.dname, "Test3", devpath);
     //Init chips, setup PLL, and scan for good cores
     chips = malloc(alchemist_max_chips * sizeof(*chips));
     
@@ -302,13 +302,14 @@ bool alchemist_detect_one(const char * const devpath)
 				if (coreid >= alchemist_max_cores_per_cluster)
 					applog(LOG_DEBUG, "%s: Bad %s id (%u) during scan of %s chip %u", alchemist_drv.dname, "core", coreid, devpath, i);
 				
-				
+				applog(LOG_DEBUG, "%s: %s %s", alchemist_drv.dname, "Test1", devpath);
                 if (buf[0] != 0xd9 || buf[1] != 0xeb || buf[2] != 0x86 || buf[3] != 0x63){
 					//chips[i].chip_good[clsid][coreid] = false;
                     applog(LOG_DEBUG, "%s: Bad %s at core (%u) during scan of %s chip %u cluster %u", alchemist_drv.dname, "nonce", coreid, devpath, i, clsid);
                 }else{
                     ++total_cores;
                     chips[i].chip_mask[clsid] |= (1 << coreid);
+                    applog(LOG_DEBUG, "%s: %s %s", alchemist_drv.dname, "Test2", devpath);
                 }
 			}
 

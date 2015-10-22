@@ -1455,7 +1455,7 @@ void _vcom_devinfo_scan_lsdev(struct lowlevel_device_info ** const devinfo_list)
 			goto trydev;
 		if (strncmp(de->d_name, "tty", 3))
 			continue;
-		if (strncmp(&de->d_name[3], "USB", 3) && strncmp(&de->d_name[3], "ACM", 3))
+		if (strncmp(&de->d_name[3], "USB", 3) && strncmp(&de->d_name[3], "ACM", 3) && de->d_name[3] != 'O')
 			continue;
 		
 trydev:

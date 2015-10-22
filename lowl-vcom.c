@@ -382,7 +382,7 @@ void _sysfs_find_tty(char *devpath, char *devfile, struct lowlevel_device_info *
 			_sysfs_find_tty(devpath, devfile, devinfo_list);
 			continue;
 		}
-		if (strncmp(&de->d_name[3], "USB", 3) && strncmp(&de->d_name[3], "ACM", 3))
+		if (strncmp(&de->d_name[3], "USB", 3) && strncmp(&de->d_name[3], "ACM", 3) && de->d_name[3] != 'O')
 			continue;
 		
 		strcpy(&ttybuf[5], de->d_name);
