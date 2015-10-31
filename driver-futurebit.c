@@ -68,7 +68,7 @@ void futurebit_chip_init(struct futurebit_chip * const chip, const uint8_t chipi
 		.global_reg = {0, 4, 0x40, 0, 0, 0, 0, 1},
 		.chip_mask = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000},
 		.clst_offset = {0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
-		.active_cores = 1728,
+		.active_cores = 54,
 		.freq = FUTUREBIT_DEFAULT_FREQUENCY,
 	};
 }
@@ -208,9 +208,9 @@ bool futurebit_send_work(const struct thr_info * const thr, struct work * const 
 		cmd[i] = buf[111 - i];
 	}
 	
-	//char output[(sizeof(cmd) * 2) + 1];
-	//bin2hex(output, cmd, sizeof(cmd));
-	//applog(LOG_DEBUG, "OUTPUT %s", output);
+	char output[(sizeof(cmd) * 2) + 1];
+	bin2hex(output, cmd, sizeof(cmd));
+	applog(LOG_DEBUG, "WORK OUTPUT %s", output);
 	
 	if (write(device->device_fd, cmd, sizeof(cmd)) != sizeof(cmd))
 		return false;
@@ -306,7 +306,7 @@ bool futurebit_detect_one(const char * const devpath)
 			uint16_t core_mask = chips[i].chip_mask[x];
 			chips[i].clst_offset[x] = n_offset;
 			
-			//applog(LOG_DEBUG, "OFFSET %u CHIP %u CLUSTER %u", n_offset, i, x);
+			applog(LOG_DEBUG, "OFFSET %u MASK %u CHIP %u CLUSTER %u", n_offset, core_mask, i, x);
 			
 			if (!futurebit_write_cluster_reg(fd, chip, core_mask, n_offset, x))
 				return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "send config register", devpath);
