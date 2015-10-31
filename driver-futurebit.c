@@ -247,8 +247,7 @@ bool futurebit_detect_one(const char * const devpath)
 	
 	unsigned freq = dummy_chip->freq;
 	
-	unsigned total_cores = 54;
-    /*
+	unsigned total_cores = 0;
 	{
 		uint8_t buf[8];
 		for (unsigned i = 0; i < futurebit_max_chips; ++i)
@@ -282,16 +281,12 @@ bool futurebit_detect_one(const char * const devpath)
 			}
 		}
 	}
-	*/
+	
 	applog(LOG_DEBUG, "%s: Identified %d cores on %s", futurebit_drv.dname, total_cores, devpath);
 	if (!total_cores)
 		goto err;
 	
-	//futurebit_reset_board(fd);
-    
-    struct futurebit_chip * const chip = &chips[0];
-    futurebit_chip_init(chip, 0);
-    chip->freq = freq;
+	futurebit_reset_board(fd);
 	
 	// config nonce ranges per cluster based on core responses
 	unsigned mutiple = FUTUREBIT_MAX_NONCE / total_cores;
@@ -312,7 +307,7 @@ bool futurebit_detect_one(const char * const devpath)
 		for (unsigned x = 0; x < futurebit_max_clusters_per_chip; ++x) {
 			unsigned gc = 0;
 			
-			uint16_t core_mask = 511;
+			uint16_t core_mask = chips[i].chip_mask[x];
 			chips[i].clst_offset[x] = n_offset;
 			
 			applog(LOG_DEBUG, "OFFSET %u MASK %u CHIP %u CLUSTER %u", n_offset, core_mask, i, x);
