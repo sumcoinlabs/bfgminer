@@ -207,6 +207,10 @@ bool futurebit_send_work(const struct thr_info * const thr, struct work * const 
 	for (int i = 0; i<112; i++) {
 		cmd[i] = buf[111 - i];
 	}
+    
+    char tar[(sizeof(target) * 2) + 1];
+    bin2hex(tar, target, sizeof(target));
+    applog(LOG_DEBUG, "WORK TARGET %s", tar);
 	
 	char output[(sizeof(cmd) * 2) + 1];
 	bin2hex(output, cmd, sizeof(cmd));
