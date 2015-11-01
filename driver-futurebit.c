@@ -228,7 +228,7 @@ static
 bool futurebit_detect_one(const char * const devpath)
 {
 	struct futurebit_chip *chips = NULL;
-	const int fd = serial_open(devpath, 57600, 1, true);
+	const int fd = serial_open(devpath, 57600, 10, true);
 	if (fd < 0)
 		return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to open", devpath);
 	
