@@ -149,18 +149,18 @@ bool futurebit_init_pll(const int fd, struct futurebit_chip * const chip)
 	
 	chip->global_reg[2] = bytes1;
 	chip->global_reg[3] = bytes3;
-	cgsleep_ms(20);
+	cgsleep_ms(50);
 	if (!futurebit_write_global_reg(fd, chip))
 		return false;
 	
 	chip->global_reg[2] = bytes2;
 	chip->global_reg[1] &= ~8;
-	cgsleep_ms(20);
+	cgsleep_ms(50);
 	if (!futurebit_write_global_reg(fd, chip))
 		return false;
 	
 	chip->global_reg[1] &= ~4;
-	cgsleep_ms(20);
+	cgsleep_ms(50);
 	if (!futurebit_write_global_reg(fd, chip))
 		return false;
 	
@@ -228,7 +228,7 @@ static
 bool futurebit_detect_one(const char * const devpath)
 {
 	struct futurebit_chip *chips = NULL;
-	const int fd = serial_open(devpath, 115200, 1, true);
+	const int fd = serial_open(devpath, 57600, 1, true);
 	if (fd < 0)
 		return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to open", devpath);
 	
@@ -246,6 +246,8 @@ bool futurebit_detect_one(const char * const devpath)
 	drv_set_defaults(&futurebit_drv, futurebit_set_device_funcs_probe, dummy_chip, devpath, detectone_meta_info.serial, 1);
 	
 	unsigned freq = dummy_chip->freq;
+    
+    applog(LOG_DEBUG, "%s: %s %u mhz", futurebit_drv.dname, "Core clock set to", freq);
 	
 	unsigned total_cores = 0;
 	{
@@ -302,7 +304,6 @@ bool futurebit_detect_one(const char * const devpath)
 		if (!futurebit_init_pll(fd, chip))
 			return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "init PLL", devpath);
 		
-		cgsleep_ms(10);
 		
 		for (unsigned x = 0; x < futurebit_max_clusters_per_chip; ++x) {
 			unsigned gc = 0;
@@ -322,6 +323,8 @@ bool futurebit_detect_one(const char * const devpath)
 			}
 			
 			n_offset += mutiple * gc;
+            
+            cgsleep_ms(50);
 		}
 	}
 	
