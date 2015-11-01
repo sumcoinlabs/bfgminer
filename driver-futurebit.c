@@ -296,7 +296,7 @@ bool futurebit_detect_one(const char * const devpath)
 	
 	futurebit_reset_board(fd);
 	
-	// config nonce ranges per cluster based on core responses
+	/* config nonce ranges per cluster based on core responses
 	unsigned mutiple = FUTUREBIT_MAX_NONCE / total_cores;
 	uint32_t n_offset = 0x00000000;
 	
@@ -333,7 +333,7 @@ bool futurebit_detect_one(const char * const devpath)
             cgsleep_ms(50);
 		}
 	}
-	
+	*/
 	if (serial_claim_v(devpath, &futurebit_drv))
 		goto err;
 	
