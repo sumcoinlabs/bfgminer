@@ -181,6 +181,10 @@ bool futurebit_send_golden(const int fd, const struct futurebit_chip * const chi
 		memset(&buf[80], 0xff, 0x1f);
 		buf[111] = 0;
 	}
+    
+    char output[(sizeof(buf) * 2) + 1];
+    bin2hex(output, buf, sizeof(buf));
+    applog(LOG_DEBUG, "GOLDEN OUTPUT %s", output);
 
 	if (write(fd, buf, sizeof(buf)) != sizeof(buf))
 		return false;
@@ -285,7 +289,8 @@ bool futurebit_detect_one(const char * const devpath)
 	}
 	
 	applog(LOG_DEBUG, "%s: Identified %d cores on %s", futurebit_drv.dname, total_cores, devpath);
-	if (!total_cores)
+	
+    if (total_cores == 0)
 		goto err;
 	
 	futurebit_reset_board(fd);
