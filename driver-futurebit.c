@@ -244,7 +244,7 @@ bool futurebit_send_work(const struct thr_info * const thr, struct work * const 
 static
 bool futurebit_detect_one(const char * const devpath)
 {
-    
+    struct futurebit_chip *chips = NULL;
 	const int fd = serial_open(devpath, 115200, 10, true);
 	if (fd < 0)
 		return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to open", devpath);
