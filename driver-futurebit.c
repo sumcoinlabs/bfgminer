@@ -392,6 +392,7 @@ void futurebit_submit_nonce(struct thr_info * const thr, const uint8_t buf[8], s
 	struct futurebit_chip *chips = device->device_data;
 	
 	uint32_t nonce = *(uint32_t *)buf;
+    uint32_t nonce_h = *(uint32_t *)buf;
 	nonce = bswap_32(nonce);
 	
 	submit_nonce(thr, work, nonce);
@@ -405,8 +406,8 @@ void futurebit_submit_nonce(struct thr_info * const thr, const uint8_t buf[8], s
 	double diff_mutiple = .5/work->work_difficulty;
 	
 	for (unsigned x = 0; x < futurebit_max_cores_per_cluster; ++x) {
-		if (nonce > range && nonce < (range + mutiple)) {
-			uint64_t hashes = (nonce - range) * chips[0].active_cores * diff_mutiple;
+		if (nonce_h > range && nonce_h < (range + mutiple)) {
+			uint64_t hashes = (nonce_h - range) * chips[0].active_cores * diff_mutiple;
 			
 			if (hashes > FUTUREBIT_MAX_NONCE)
 				hashes = 1;
