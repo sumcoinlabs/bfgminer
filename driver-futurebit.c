@@ -201,10 +201,10 @@ bool futurebit_send_work(const struct thr_info * const thr, struct work * const 
 	
 	unsigned char swpdata[80];
 	
-    buf[0] = 0;
-    memset(&buf[1], 0xff, 0x1f);
-    //memset(&buf[0], 0, 0x18);
-	//memcpy(&buf[24], &target[24], 0x8);
+    //buf[0] = 0;
+    //memset(&buf[1], 0xff, 0x1f);
+    memset(&buf[0], 0, 0x18);
+	memcpy(&buf[24], &target[24], 0x8);
 	
 	swap32tobe(swpdata, work->data, 80/4);
 	memcpy(&buf[32], swpdata, 80);
@@ -262,9 +262,14 @@ bool futurebit_detect_one(const char * const devpath)
 			struct futurebit_chip * const chip = &chips[i];
 			futurebit_chip_init(chip, i);
 			chip->freq = freq;
-			futurebit_set_diag_mode(chip, true);
-			if (!futurebit_init_pll(fd, chip))
-				return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "init PLL", devpath);
+			
+            chip->global_reg[1] = 0x05;
+            if (!futurebit_write_global_reg(fd, chip))
+                return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "global", devpath);
+            cgsleep_ms(50);
+            //futurebit_set_diag_mode(chip, true);
+			//if (!futurebit_init_pll(fd, chip))
+			//	return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "init PLL", devpath);
 			if (!futurebit_send_golden(fd, chip, futurebit_g_head, NULL))
 				return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "send scan job", devpath);
 			
@@ -296,7 +301,7 @@ bool futurebit_detect_one(const char * const devpath)
 	
 	futurebit_reset_board(fd);
 	
-	/* config nonce ranges per cluster based on core responses
+	// config nonce ranges per cluster based on core responses
 	unsigned mutiple = FUTUREBIT_MAX_NONCE / total_cores;
 	uint32_t n_offset = 0x00000000;
 	
@@ -306,9 +311,13 @@ bool futurebit_detect_one(const char * const devpath)
 		
 		chips[i].active_cores = total_cores;
 		
-		futurebit_set_diag_mode(chip, false);
-		if (!futurebit_init_pll(fd, chip))
-			return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "init PLL", devpath);
+        chip->global_reg[1] = 0x01;
+        if (!futurebit_write_global_reg(fd, chip))
+            return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "global", devpath);
+        cgsleep_ms(50);
+		//futurebit_set_diag_mode(chip, false);
+		//if (!futurebit_init_pll(fd, chip))
+		//	return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "init PLL", devpath);
 		
 		
 		for (unsigned x = 0; x < futurebit_max_clusters_per_chip; ++x) {
@@ -333,7 +342,7 @@ bool futurebit_detect_one(const char * const devpath)
             cgsleep_ms(50);
 		}
 	}
-	*/
+	
 	if (serial_claim_v(devpath, &futurebit_drv))
 		goto err;
 	
