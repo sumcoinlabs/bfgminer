@@ -311,7 +311,7 @@ bool futurebit_detect_one(const char * const devpath)
 		
 		chips[i].active_cores = total_cores;
 		
-        chip->global_reg[1] = 0x01;
+        chip->global_reg[1] = 0x04;
         if (!futurebit_write_global_reg(fd, chip))
             return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "global", devpath);
         cgsleep_ms(50);
