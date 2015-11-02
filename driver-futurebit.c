@@ -320,7 +320,7 @@ bool futurebit_detect_one(const char * const devpath)
 		//	return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "init PLL", devpath);
 		
 		
-		for (unsigned x = 0; x < futurebit_max_clusters_per_chip; ++x) {
+		for (unsigned x = 0; x < 2; ++x) {
 			unsigned gc = 0;
 			
 			uint16_t core_mask = chips[i].chip_mask[x];
