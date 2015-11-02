@@ -17,6 +17,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <libusb.h>
 //#include <fcntl.h>
 //#include <stropts.h>
 //#include <termios.h>
@@ -26,6 +27,7 @@
 #include "lowlevel.h"
 #include "lowl-vcom.h"
 #include "util.h"
+
 
 static const uint8_t futurebit_max_chips = 0x01;
 #define FUTUREBIT_DEFAULT_FREQUENCY  352
@@ -46,6 +48,7 @@ static const uint8_t futurebit_g_head[] = {
 	   0,    0,    0,    1, 0x8e, 0xa7,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
 	   0,    0,    0,    0,    0,    0,    0
 };
+
 
 BFG_REGISTER_DRIVER(futurebit_drv)
 
@@ -74,16 +77,26 @@ void futurebit_chip_init(struct futurebit_chip * const chip, const uint8_t chipi
 }
 
 static
-void futurebit_reset_board(const int fd)
+void futurebit_reset_board(const struct lowlevel_device_info * const info)
 {
-	//uint16_t gpio;
-
-    //gpio = 0x0001;
-    //ioctl(fd, 0x8001, &gpio);
-	//cgsleep_ms(100);
-    //gpio = 0x0101;
-    //ioctl(fd, 0x8001, &gpio);
 	
+    if (info->lowl_data == NULL)
+        applog(LOG_DEBUG, "LOWL DATA = NULL");
+    
+    libusb_device_handle *handle;
+    if (libusb_open(info->lowl_data, &handle))
+        applog(LOG_DEBUG, "LIBUSB OPEN FAILURE");
+
+    uint16_t gpio;
+
+    gpio = 0x0001;
+    if(libusb_control_transfer(handle,0x40,0xff,0x37e1,gpio,0,0,1000) < 0)
+        applog(LOG_DEBUG, "RESET CHIP FAILED");
+	cgsleep_ms(100);
+    gpio = 0x0101;
+    if(libusb_control_transfer(handle,0x40,0xff,0x37e1,gpio,0,0,1000) < 0)
+        applog(LOG_DEBUG, "RESET CHIP FAILED");
+
 	
 }
 
@@ -230,8 +243,9 @@ bool futurebit_send_work(const struct thr_info * const thr, struct work * const 
 }
 
 static
-bool futurebit_detect_one(const char * const devpath)
+bool futurebit_detect_one(const struct lowlevel_device_info * const info)
 {
+    const char * const devpath = info->path;
 	struct futurebit_chip *chips = NULL;
 	const int fd = serial_open(devpath, 115200, 10, true);
 	if (fd < 0)
@@ -239,7 +253,7 @@ bool futurebit_detect_one(const char * const devpath)
 	
 	applog(LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Successfully opened", devpath);
 	
-	futurebit_reset_board(fd);
+	futurebit_reset_board(info);
 	
 	// Init chips, setup PLL, and scan for good cores
 	chips = malloc(futurebit_max_chips * sizeof(*chips));
@@ -300,7 +314,7 @@ bool futurebit_detect_one(const char * const devpath)
     if (total_cores == 0)
 		goto err;
 	
-	futurebit_reset_board(fd);
+	futurebit_reset_board(info);
 	
 	// config nonce ranges per cluster based on core responses
 	unsigned mutiple = FUTUREBIT_MAX_NONCE / total_cores;
@@ -464,7 +478,7 @@ int64_t futurebit_scanhash(struct thr_info *thr, struct work *work, int64_t __ma
 static
 bool futurebit_lowl_probe(const struct lowlevel_device_info * const info)
 {
-	return vcom_lowl_probe_wrapper(info, futurebit_detect_one);
+    return vcom_lowl_probe_wrapper_info(info, futurebit_detect_one);
 }
 
 static
@@ -472,7 +486,7 @@ void futurebit_thread_shutdown(struct thr_info *thr)
 {
 	struct cgpu_info *device = thr->cgpu;
 	
-	futurebit_reset_board(device->device_fd);
+	//futurebit_reset_board(device->device_fd);
 	
 	serial_close(device->device_fd);
 }
