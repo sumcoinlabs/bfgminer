@@ -83,7 +83,7 @@ void futurebit_reset_board(const int fd)
 
     
     libusb_device_handle *handle = libusb_open_device_with_vid_pid (NULL, 0x10c4, 0xea60);
-    if (handle == NULL))
+    if (handle == NULL)
         applog(LOG_DEBUG, "LIBUSB OPEN FAILURE");
 
     uint16_t gpio;
