@@ -260,7 +260,7 @@ bool futurebit_detect_one(const char * const devpath)
 	
 	applog(LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Successfully opened", devpath);
 	
-	//futurebit_reset_board(fd);
+	futurebit_reset_board(fd);
 	
 	// Init chips, setup PLL, and scan for good cores
 	chips = malloc(futurebit_max_chips * sizeof(*chips));
@@ -321,7 +321,7 @@ bool futurebit_detect_one(const char * const devpath)
     if (total_cores == 0)
 		goto err;
 	
-	//futurebit_reset_board(fd);
+	futurebit_reset_board(fd);
 	
 	// config nonce ranges per cluster based on core responses
 	unsigned mutiple = FUTUREBIT_MAX_NONCE / total_cores;
