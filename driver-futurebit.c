@@ -89,7 +89,7 @@ void futurebit_reset_board(const int fd)
     
     
     
-    /*
+    
     
     libusb_device_handle *handle = libusb_open_device_with_vid_pid (NULL, 0x10c4, 0xea60);
     if (handle == NULL)
@@ -104,7 +104,7 @@ void futurebit_reset_board(const int fd)
     gpio = 0x0101;
     if(libusb_control_transfer(handle,0x40,0xff,0x37e1,gpio,0,0,1000) < 0)
         applog(LOG_DEBUG, "RESET CHIP FAILED");
-     */
+    
 	
 }
 
