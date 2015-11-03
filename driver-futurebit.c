@@ -83,8 +83,9 @@ void futurebit_reset_board(const int fd)
     
     
     if(set_serial_rts(fd, BGV_LOW) == BGV_ERROR)
-        applog(LOG_DEBUG, "IOCTL RESET FAILED");
-    
+        applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
+    if(set_serial_dtr(fd, BGV_LOW) == BGV_ERROR)
+        applog(LOG_DEBUG, "IOCTL DTR RESET FAILED");
 
     
     
