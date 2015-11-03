@@ -1269,14 +1269,17 @@ enum bfg_gpio_value _set_serial_cmflag(int fd, int flag, bool val)
 	if (fd == -1)
 		return BGV_ERROR;
 
-	ioctl(fd, TIOCMGET, &flags);
+	if(ioctl(fd, TIOCMGET, &flags) == -1)
+        return BGV_ERROR;
 	
-	if (val)
+    if (val)
 		flags |= flag;
 	else
 		flags &= ~flag;
-    applog(LOG_DEBUG, "IOCTL CALLED");
-	ioctl(fd, TIOCMSET, &flags);
+    
+	if(ioctl(fd, TIOCMSET, &flags) == -1)
+        return BGV_ERROR;
+    
 	return val ? BGV_HIGH : BGV_LOW;
 }
 
