@@ -158,15 +158,16 @@ bool futurebit_init_pll(const int fd, struct futurebit_chip * const chip)
 	unsigned freq = chip->freq;
     uint8_t bytes1;
     uint8_t bytes2;
+    uint8_t divider;
     
     if (freq <= 200){
-        uint8_t divider = (freq - 8)/8;
+        divider = (freq - 8)/8;
         divider <<= 1;
         bytes1 = 0x70 | ((divider & 0xf0) >> 4);
         bytes2 = 0x30 | ((divider & 0xf0) >> 4);
         
     }else {
-        uint8_t divider = (freq - 16)/16;
+        divider = (freq - 16)/16;
         divider <<= 1;
         bytes1 = 0x60 | ((divider & 0xf0) >> 4);
         bytes2 = 0x20 | ((divider & 0xf0) >> 4);
