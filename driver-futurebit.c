@@ -31,7 +31,7 @@
 
 static const uint8_t futurebit_max_chips = 0x01;
 #define FUTUREBIT_DEFAULT_FREQUENCY  352
-#define FUTUREBIT_MIN_CLOCK          200
+#define FUTUREBIT_MIN_CLOCK          104
 #define FUTUREBIT_MAX_CLOCK          400
 // Number of seconds chip of 54 cores @ 352mhz takes to scan full range
 #define FUTUREBIT_HASH_SPEED         4090.0
@@ -156,12 +156,20 @@ static
 bool futurebit_init_pll(const int fd, struct futurebit_chip * const chip)
 {
 	unsigned freq = chip->freq;
-	uint8_t divider = (freq - 16)/16;
-	
-	divider <<= 1;
-	
-	uint8_t bytes1 = 0x60 | ((divider & 0xf0) >> 4);
-	uint8_t bytes2 = 0x20 | ((divider & 0xf0) >> 4);
+    
+    if (freq <= 200){
+        uint8_t divider = (freq - 8)/8;
+        divider <<= 1;
+        uint8_t bytes1 = 0x70 | ((divider & 0xf0) >> 4);
+        uint8_t bytes2 = 0x30 | ((divider & 0xf0) >> 4);
+        
+    }else {
+        uint8_t divider = (freq - 16)/16;
+        divider <<= 1;
+        uint8_t bytes1 = 0x60 | ((divider & 0xf0) >> 4);
+        uint8_t bytes2 = 0x20 | ((divider & 0xf0) >> 4);
+    }
+
 	uint8_t bytes3 = 0x00 | ((divider & 0x0f) << 4);
 	
 	pk_u16be(chip->global_reg, 2, 0x4000);
@@ -515,8 +523,8 @@ const char *futurebit_set_clock(struct cgpu_info * const device, const char * co
 	struct futurebit_chip * const chip = device->device_data;
 	int val = atoi(setting);
 	
-	if (val < FUTUREBIT_MIN_CLOCK || val > FUTUREBIT_MAX_CLOCK || (val%16)) {
-		sprintf(replybuf, "invalid clock: '%s' valid range %d-%d and a mutiple of 16",
+	if (val < FUTUREBIT_MIN_CLOCK || val > FUTUREBIT_MAX_CLOCK || (val%8)) {
+		sprintf(replybuf, "invalid clock: '%s' valid range %d-%d. Clock must be a mutiple of 8 between 104-200mhz, and a mutiple of 16 between 208-400mhz",
 		        setting, FUTUREBIT_MIN_CLOCK, FUTUREBIT_MAX_CLOCK);
 		return replybuf;
 	} else
