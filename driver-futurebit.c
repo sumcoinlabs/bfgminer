@@ -266,6 +266,8 @@ static
 bool futurebit_detect_one(const char * const devpath)
 {
     struct futurebit_chip *chips = NULL;
+    unsigned total_cores = 0;
+    
 	const int fd = serial_open(devpath, 115200, 10, true);
 	if (fd < 0)
 		return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to open", devpath);
@@ -274,8 +276,6 @@ bool futurebit_detect_one(const char * const devpath)
 	
 	futurebit_reset_board(fd);
     
-   /* cgsleep_ms(2000);
-	
 	// Init chips, setup PLL, and scan for good cores
 	chips = malloc(futurebit_max_chips * sizeof(*chips));
 	
@@ -288,8 +288,8 @@ bool futurebit_detect_one(const char * const devpath)
 	unsigned freq = dummy_chip->freq;
     
     applog(LOG_DEBUG, "%s: %s %u mhz", futurebit_drv.dname, "Core clock set to", freq);
+	/*
 	
-	unsigned total_cores = 0;
 	{
 		uint8_t buf[8];
 		for (unsigned i = 0; i < futurebit_max_chips; ++i)
@@ -329,7 +329,7 @@ bool futurebit_detect_one(const char * const devpath)
 			}
 		}
 	}
-	
+	*/
 	applog(LOG_DEBUG, "%s: Identified %d cores on %s", futurebit_drv.dname, total_cores, devpath);
 	
     if (total_cores == 0)
@@ -400,7 +400,7 @@ bool futurebit_detect_one(const char * const devpath)
 err:
 	if (fd >= 0)
 		serial_close(fd);
-	free(chips);     */
+	free(chips);
 	return false;
 }
 
