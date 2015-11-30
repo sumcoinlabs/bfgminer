@@ -334,7 +334,7 @@ bool futurebit_detect_one(const char * const devpath)
 	
     if (total_cores == 0)
 		goto err;
-	*/
+	
 	futurebit_reset_board(fd);
 	
 	// config nonce ranges per cluster based on core responses
@@ -400,7 +400,7 @@ bool futurebit_detect_one(const char * const devpath)
 err:
 	if (fd >= 0)
 		serial_close(fd);
-	free(chips);
+	free(chips);     */
 	return false;
 }
 
