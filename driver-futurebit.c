@@ -85,7 +85,7 @@ void futurebit_reset_board(const int fd)
     if(set_serial_rts(fd, BGV_LOW) == BGV_ERROR)
         applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
   
-    cgsleep_ms(100);
+    cgsleep_ms(10);
     
     if(set_serial_rts(fd, BGV_HIGH) == BGV_ERROR)
         applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
@@ -274,7 +274,7 @@ bool futurebit_detect_one(const char * const devpath)
 	
 	futurebit_reset_board(fd);
     
-    cgsleep_ms(2000);
+   // cgsleep_ms(2000);
 	
 	// Init chips, setup PLL, and scan for good cores
 	chips = malloc(futurebit_max_chips * sizeof(*chips));
