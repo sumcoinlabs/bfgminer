@@ -273,6 +273,8 @@ bool futurebit_detect_one(const char * const devpath)
 	applog(LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Successfully opened", devpath);
 	
 	futurebit_reset_board(fd);
+    
+    cgsleep_ms(2000);
 	
 	// Init chips, setup PLL, and scan for good cores
 	chips = malloc(futurebit_max_chips * sizeof(*chips));
