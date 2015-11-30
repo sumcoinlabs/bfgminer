@@ -274,7 +274,7 @@ bool futurebit_detect_one(const char * const devpath)
 	
 	futurebit_reset_board(fd);
     
-   // cgsleep_ms(2000);
+   /* cgsleep_ms(2000);
 	
 	// Init chips, setup PLL, and scan for good cores
 	chips = malloc(futurebit_max_chips * sizeof(*chips));
@@ -334,7 +334,7 @@ bool futurebit_detect_one(const char * const devpath)
 	
     if (total_cores == 0)
 		goto err;
-	
+	*/
 	futurebit_reset_board(fd);
 	
 	// config nonce ranges per cluster based on core responses
