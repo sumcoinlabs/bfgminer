@@ -81,16 +81,7 @@ static
 void futurebit_reset_board(const int fd)
 {
 	
-    int bits = TIOCM_RTS;
-  
-    if(ioctl(fd,TIOCMBIC,&bits) == -1)
-        applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
     
-    cgsleep_ms(100);
-    
-    if(ioctl(fd,TIOCMBIS,&bits) == -1)
-        applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
-    /*
     
     if(set_serial_rts(fd, BGV_LOW) == BGV_ERROR)
         applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
@@ -101,7 +92,7 @@ void futurebit_reset_board(const int fd)
         applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
     
     
-   
+   /*
     libusb_device_handle *handle = libusb_open_device_with_vid_pid (NULL, 0x10c4, 0xea60);
     if (handle == NULL)
         applog(LOG_DEBUG, "LIBUSB OPEN FAILURE");
@@ -277,13 +268,23 @@ bool futurebit_detect_one(const char * const devpath)
 {
     struct futurebit_chip *chips = NULL;
     unsigned total_cores = 0;
+    struct termios   options;
     
 	const int fd = serial_open(devpath, 115200, 10, true);
 	if (fd < 0)
 		return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to open", devpath);
 	
 	applog(LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Successfully opened", devpath);
-	
+    
+    // Get the current options for the port
+    if(tcgetattr(fd, &options) < 0)
+        return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to get options", devpath);
+    
+    options.c_cflag &= ~CRTSCTS;
+    
+    if(tcsetattr(fd, TCSANOW, &options) < 0)
+        return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to set options", devpath);
+
 	futurebit_reset_board(fd);
     
 	// Init chips, setup PLL, and scan for good cores
