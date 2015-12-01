@@ -271,7 +271,7 @@ bool futurebit_detect_one(const char * const devpath)
     unsigned total_cores = 0;
     struct termios   options;
     
-	const int fd = serial_open(devpath, 115200, 10, true);
+	const int fd = serial_open(devpath, 115200, 1, true);
 	if (fd < 0)
 		return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to open", devpath);
 	
@@ -281,7 +281,7 @@ bool futurebit_detect_one(const char * const devpath)
     if(tcgetattr(fd, &options) < 0)
         return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to get options", devpath);
     
-    options.c_cflag &= ~CRTSCTS;
+    options.c_cflag &= ~CRTS_IFLOW;
     
     if(tcsetattr(fd, TCSANOW, &options) < 0)
         return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to set options", devpath);
