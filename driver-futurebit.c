@@ -20,7 +20,8 @@
 #include <libusb.h>
 //#include <fcntl.h>
 //#include <stropts.h>
-//#include <termios.h>
+#include <termios.h>
+#include <sys/ioctl.h>
 
 #include "deviceapi.h"
 #include "logging.h"
@@ -80,7 +81,15 @@ static
 void futurebit_reset_board(const int fd)
 {
 	
+  
+    if(ioctl(fd,TIOCMBIC,&TIOCM_RTS) == -1)
+        applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
     
+    cgsleep_ms(100);
+    
+    if(ioctl(fd,TIOCMBIS,&TIOCM_RTS) == -1)
+        applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
+    /*
     
     if(set_serial_rts(fd, BGV_LOW) == BGV_ERROR)
         applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
@@ -91,7 +100,7 @@ void futurebit_reset_board(const int fd)
         applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
     
     
-   /*
+   
     libusb_device_handle *handle = libusb_open_device_with_vid_pid (NULL, 0x10c4, 0xea60);
     if (handle == NULL)
         applog(LOG_DEBUG, "LIBUSB OPEN FAILURE");
