@@ -81,13 +81,14 @@ static
 void futurebit_reset_board(const int fd)
 {
 	
+    int bits = TIOCM_RTS;
   
-    if(ioctl(fd,TIOCMBIC,&TIOCM_RTS) == -1)
+    if(ioctl(fd,TIOCMBIC,&bits) == -1)
         applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
     
     cgsleep_ms(100);
     
-    if(ioctl(fd,TIOCMBIS,&TIOCM_RTS) == -1)
+    if(ioctl(fd,TIOCMBIS,&bits) == -1)
         applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
     /*
     
