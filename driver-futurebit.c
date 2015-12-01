@@ -82,7 +82,7 @@ void futurebit_reset_board(const int fd)
 {
 	
     
-    
+    /*
     if(set_serial_dtr(fd, BGV_LOW) == BGV_ERROR)
         applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
   
@@ -92,7 +92,7 @@ void futurebit_reset_board(const int fd)
         applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
     
     
-   /*
+   
     libusb_device_handle *handle = libusb_open_device_with_vid_pid (NULL, 0x10c4, 0xea60);
     if (handle == NULL)
         applog(LOG_DEBUG, "LIBUSB OPEN FAILURE");
@@ -299,7 +299,7 @@ bool futurebit_detect_one(const char * const devpath)
 	unsigned freq = dummy_chip->freq;
     
     applog(LOG_DEBUG, "%s: %s %u mhz", futurebit_drv.dname, "Core clock set to", freq);
-	/*
+	
 	
 	{
 		uint8_t buf[8];
@@ -340,7 +340,7 @@ bool futurebit_detect_one(const char * const devpath)
 			}
 		}
 	}
-	*/
+	
 	applog(LOG_DEBUG, "%s: Identified %d cores on %s", futurebit_drv.dname, total_cores, devpath);
 	
     if (total_cores == 0)
