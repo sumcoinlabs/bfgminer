@@ -91,6 +91,7 @@ void futurebit_reset_board(const int fd)
     if(set_serial_rts(fd, BGV_HIGH) == BGV_ERROR)
         applog(LOG_DEBUG, "IOCTL RTS RESET FAILED");
     
+    cgsleep_ms(100);
     
     /*
    
@@ -301,7 +302,7 @@ bool futurebit_detect_one(const char * const devpath)
     
     applog(LOG_DEBUG, "%s: %s %u mhz", futurebit_drv.dname, "Core clock set to", freq);
 	
-	
+	/*
 	{
 		uint8_t buf[8];
 		for (unsigned i = 0; i < futurebit_max_chips; ++i)
@@ -341,7 +342,7 @@ bool futurebit_detect_one(const char * const devpath)
 			}
 		}
 	}
-	
+	*/
 	applog(LOG_DEBUG, "%s: Identified %d cores on %s", futurebit_drv.dname, total_cores, devpath);
 	
     if (total_cores == 0)
