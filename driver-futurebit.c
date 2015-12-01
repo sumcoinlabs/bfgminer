@@ -272,7 +272,7 @@ bool futurebit_detect_one(const char * const devpath)
     unsigned total_cores = 0;
     struct termios   options;
     
-	const int fd = serial_open(devpath, 115200, 1, true);
+	const int fd = serial_open(devpath, 115200, 10, true);
 	if (fd < 0)
 		return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to open", devpath);
 	
