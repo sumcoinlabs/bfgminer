@@ -302,7 +302,6 @@ bool futurebit_detect_one(const char * const devpath)
     
     applog(LOG_DEBUG, "%s: %s %u mhz", futurebit_drv.dname, "Core clock set to", freq);
 	
-	/*
 	{
 		uint8_t buf[8];
 		for (unsigned i = 0; i < futurebit_max_chips; ++i)
@@ -342,7 +341,7 @@ bool futurebit_detect_one(const char * const devpath)
 			}
 		}
 	}
-	*/
+
 	applog(LOG_DEBUG, "%s: Identified %d cores on %s", futurebit_drv.dname, total_cores, devpath);
 	
     if (total_cores == 0)
