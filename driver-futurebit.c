@@ -278,7 +278,7 @@ bool futurebit_detect_one(const char * const devpath)
 	
 	applog(LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Successfully opened", devpath);
     
-    // Get the current options for the port
+    /* Get the current options for the port
     if(tcgetattr(fd, &options) < 0)
         return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to get options", devpath);
     
@@ -286,7 +286,7 @@ bool futurebit_detect_one(const char * const devpath)
     
     if(tcsetattr(fd, TCSANOW, &options) < 0)
         return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to set options", devpath);
-
+*/
 	futurebit_reset_board(fd);
     
 	// Init chips, setup PLL, and scan for good cores
