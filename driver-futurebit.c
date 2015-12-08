@@ -473,10 +473,10 @@ int64_t futurebit_scanhash(struct thr_info *thr, struct work *work, int64_t __ma
 	// start the job
 	timer_set_now(&start_tv);
 	
-	//if (!futurebit_send_work(thr, work)) {
-	//	applog(LOG_DEBUG, "Failed to start job");
-	//	dev_error(device, REASON_DEV_COMMS_ERROR);
-	//}
+	if (!futurebit_send_work(thr, work)) {
+		applog(LOG_DEBUG, "Failed to start job");
+		dev_error(device, REASON_DEV_COMMS_ERROR);
+	}
 	
 	uint8_t buf[8];
 	int read = 0;
