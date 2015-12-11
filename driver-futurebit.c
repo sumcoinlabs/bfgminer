@@ -448,16 +448,19 @@ void futurebit_submit_nonce(struct thr_info * const thr, const uint8_t buf[8], s
     
     applog(LOG_DEBUG, "Core ID: %u, Cluster ID: %u, nonce1: %u, nonce2: %u, range: %u-%u", coreid, clstid , nonce, nonce_h, range, range+mutiple);
 	
+    struct timeval now_tv;
+    timer_set_now(&now_tv);
+    int elapsed_s = ms_tdiff(&now_tv, &start_tv)/1000;
 
 
-    uint64_t hashes = ((nonce - range)/9) * chips[0].active_cores;
-    uint64_t hashes_per_sec = hashes/timer_passed(&tvp_start);
+    uint64_t total_hashes = ((nonce - range)/9) * chips[0].active_cores;
+    uint64_t hashes_per_sec = total_hashes/elapsed_s;
     
     
-    if(thr->_tv_last_hashes_done_call == NULL)
-        hashes_done2(thr, hashes, NULL);
+    if(&thr->_tv_last_hashes_done_call == NULL)
+        hashes_done2(thr, total_hashes, NULL);
     else{
-        hashes = hashes_per_sec * timer_passed(&thr->_tv_last_hashes_done_call, NULL);
+        hashes = hashes_per_sec * ms_tdiff(&now_tv, &thr->_tv_last_hashes_done_call)/1000;;
         hashes_done2(thr, hashes, NULL);
     }
 	
