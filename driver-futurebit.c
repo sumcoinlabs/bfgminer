@@ -441,12 +441,12 @@ void futurebit_submit_nonce(struct thr_info * const thr, const uint8_t buf[8], s
 	
 	double diff_mutiple = .5/work->work_difficulty;
     
-    char output[(sizeof(nonce) * 2) + 1];
-    bin2hex(output, nonce, sizeof(nonce));
-    char output2[(sizeof(nonce_h) * 2) + 1];
-    bin2hex(output, nonce_h, sizeof(nonce_h));
+    //char output[(sizeof(nonce) * 2) + 1];
+    //bin2hex(output, nonce, sizeof(nonce));
+    //char output2[(sizeof(nonce_h) * 2) + 1];
+    //bin2hex(output, nonce_h, sizeof(nonce_h));
     
-    applog(LOG_DEBUG, "Core ID: %u, Cluster ID: %u, nonce1: %s, nonce2: %s, range: %u-%u", coreid, clstid , nonce, nonce_h, range, range+mutiple);
+    applog(LOG_DEBUG, "Core ID: %u, Cluster ID: %u, nonce1: %u, nonce2: %u, range: %u-%u", coreid, clstid , nonce, nonce_h, range, range+mutiple);
 	
 	for (unsigned x = 0; x < futurebit_max_cores_per_cluster; ++x) {
 		if (nonce_h > range && nonce_h < (range + mutiple)) {
