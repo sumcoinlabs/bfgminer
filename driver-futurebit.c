@@ -448,18 +448,14 @@ void futurebit_submit_nonce(struct thr_info * const thr, const uint8_t buf[8], s
     
     applog(LOG_DEBUG, "Core ID: %u, Cluster ID: %u, nonce1: %u, nonce2: %u, range: %u-%u", coreid, clstid , nonce, nonce_h, range, range+mutiple);
 	
-	for (unsigned x = 0; x < futurebit_max_cores_per_cluster; ++x) {
-		if (nonce_h > range && nonce_h < (range + mutiple)) {
-			uint64_t hashes = (nonce_h - range) * chips[0].active_cores * diff_mutiple;
+
+
+    uint64_t hashes = ((nonce - range)/9) * chips[0].active_cores;
 			
-			if (hashes > FUTUREBIT_MAX_NONCE)
-				hashes = 1;
 			
-			hashes_done2(thr, hashes, NULL);
-		}
+    hashes_done2(thr, hashes, NULL);
 		
-		range += mutiple;
-	}
+	
 }
 
 // send work to the device
