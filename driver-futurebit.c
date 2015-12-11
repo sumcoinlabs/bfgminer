@@ -457,7 +457,7 @@ void futurebit_submit_nonce(struct thr_info * const thr, const uint8_t buf[8], s
     if(thr->_tv_last_hashes_done_call == NULL)
         hashes_done2(thr, hashes, NULL);
     else{
-        hashes = hashes_per_sec * timer_passed(&thr->_tv_last_hashes_done_call);
+        hashes = hashes_per_sec * timer_passed(&thr->_tv_last_hashes_done_call, NULL);
         hashes_done2(thr, hashes, NULL);
     }
 	
