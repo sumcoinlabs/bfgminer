@@ -421,7 +421,7 @@ err:
  */
 
 static
-void futurebit_submit_nonce(struct thr_info * const thr, const uint8_t buf[8], struct work * const work, struct timeval *tvp_start)
+void futurebit_submit_nonce(struct thr_info * const thr, const uint8_t buf[8], struct work * const work, struct timeval const start_tv)
 {
 	struct cgpu_info *device = thr->cgpu;
 	struct futurebit_chip *chips = device->device_data;
@@ -450,7 +450,8 @@ void futurebit_submit_nonce(struct thr_info * const thr, const uint8_t buf[8], s
 	
     struct timeval now_tv;
     timer_set_now(&now_tv);
-    int elapsed_ms = ms_tdiff(&tvp_start, &now_tv);
+    int elapsed_ms = ms_tdiff(&now_tv, &start_tv);
+
 
 
     double total_hashes = ((nonce - range)/9.0) * chips[0].active_cores;
@@ -503,7 +504,7 @@ int64_t futurebit_scanhash(struct thr_info *thr, struct work *work, int64_t __ma
 			continue;
 		
 		if (read == 8) {
-			futurebit_submit_nonce(thr, buf, work, &start_tv);
+			futurebit_submit_nonce(thr, buf, work, start_tv);
 		}
 		else
 			applog(LOG_ERR, "%"PRIpreprv": Unrecognized response", device->proc_repr);
