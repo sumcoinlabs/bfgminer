@@ -450,7 +450,7 @@ void futurebit_submit_nonce(struct thr_info * const thr, const uint8_t buf[8], s
 	
     struct timeval now_tv;
     timer_set_now(&now_tv);
-    int elapsed_ms = ms_tdiff(&now_tv, &start_tv);
+    int elapsed_ms = ms_tdiff(&now_tv, &tvp_start;
 
 
     uint64_t total_hashes = ((nonce - range)/9) * chips[0].active_cores;
