@@ -94,7 +94,7 @@ void futurebit_reset_board(const int fd)
     //cgsleep_ms(100);
     
     
-   
+   /*
     libusb_device_handle *handle = libusb_open_device_with_vid_pid (NULL, 0x10c4, 0xea60);
     if (handle == NULL)
         applog(LOG_DEBUG, "LIBUSB OPEN FAILURE");
@@ -108,7 +108,7 @@ void futurebit_reset_board(const int fd)
     gpio = 0x0101;
     if(libusb_control_transfer(handle,0x40,0xff,0x37e1,gpio,0,0,1000) < 0)
         applog(LOG_DEBUG, "RESET CHIP FAILED");
-    
+    */
 	
 }
 
@@ -218,9 +218,9 @@ bool futurebit_send_golden(const int fd, const struct futurebit_chip * const chi
 		buf[111] = 0;
 	}
     
-    char output[(sizeof(buf) * 2) + 1];
-    bin2hex(output, buf, sizeof(buf));
-    applog(LOG_DEBUG, "GOLDEN OUTPUT %s", output);
+    //char output[(sizeof(buf) * 2) + 1];
+   // bin2hex(output, buf, sizeof(buf));
+    //applog(LOG_DEBUG, "GOLDEN OUTPUT %s", output);
 
 	if (write(fd, buf, sizeof(buf)) != sizeof(buf))
 		return false;
@@ -268,26 +268,40 @@ bool futurebit_send_work(const struct thr_info * const thr, struct work * const 
 static
 bool futurebit_detect_one(const char * const devpath)
 {
+    
+    applog(LOG_WARNING, "%s: %s %s", futurebit_drv.dname, "Initilizing MoonLander Tests on", devpath);
+    cgsleep_ms(500);
     struct futurebit_chip *chips = NULL;
     unsigned total_cores = 0;
     struct termios   options;
     
-	const int fd = serial_open(devpath, 115200, 10, true);
+    applog(LOG_WARNING, "%s", "Testing UART CP2103 chip...");
+    cgsleep_ms(100);
+    applog(LOG_WARNING, "%s", "opening coms");
+	const int fd = serial_open(devpath, 115200, 1, true);
 	if (fd < 0)
-		return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to open", devpath);
+		return_via_applog(err, , LOG_WARNING, "%s", "[FAILED] CP2103 OPEN");
 	
-	applog(LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Successfully opened", devpath);
+	applog(LOG_WARNING, "%s", "[PASSED]");
     
-    /* Get the current options for the port
-    if(tcgetattr(fd, &options) < 0)
-        return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to get options", devpath);
+    cgsleep_ms(100);
+    applog(LOG_WARNING, "%s", "checking reset pin");
     
-    options.c_cflag &= ~CRTS_IFLOW;
+    if(set_serial_rts(fd, BGV_HIGH) == BGV_ERROR)
+        return_via_applog(err, , LOG_WARNING, "%s", "[FAILED] CP2103 RST HIGH");
     
-    if(tcsetattr(fd, TCSANOW, &options) < 0)
-        return_via_applog(err, , LOG_DEBUG, "%s: %s %s", futurebit_drv.dname, "Failed to set options", devpath);
-*/
+    cgsleep_ms(100);
+    
+    if(set_serial_rts(fd, BGV_LOW) == BGV_ERROR)
+        return_via_applog(err, , LOG_WARNING, "%s", "[FAILED] CP2103 RST LOW");
+
 	futurebit_reset_board(fd);
+    
+    applog(LOG_WARNING, "%s", "[PASSED]");
+    
+    cgsleep_ms(500);
+    
+    applog(LOG_WARNING, "%s", "Testing ASIC...");
     
 	// Init chips, setup PLL, and scan for good cores
 	chips = malloc(futurebit_max_chips * sizeof(*chips));
@@ -309,6 +323,8 @@ bool futurebit_detect_one(const char * const devpath)
 			struct futurebit_chip * const chip = &chips[i];
 			futurebit_chip_init(chip, i);
 			chip->freq = freq;
+            
+            applog(LOG_WARNING, "%s", "initilizing PLL");
 			
             //chip->global_reg[1] = 0x05;
             //if (!futurebit_write_global_reg(fd, chip))
@@ -316,24 +332,29 @@ bool futurebit_detect_one(const char * const devpath)
             //cgsleep_ms(50);
             futurebit_set_diag_mode(chip, true);
 			if (!futurebit_init_pll(fd, chip))
-				return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "init PLL", devpath);
-			cgsleep_ms(50);
+				return_via_applog(err, , LOG_WARNING, "%s", "[FAILED] ASIC CLOCK WRITE");
+            applog(LOG_WARNING, "%s", "[PASSED]");
+			cgsleep_ms(500);
+            applog(LOG_WARNING, "%s", "sending ASIC core test command");
             if (!futurebit_send_golden(fd, chip, futurebit_g_head, NULL))
-				return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "send scan job", devpath);
+				return_via_applog(err, , LOG_WARNING, "%s", "[FAILED] ASIC CMD WRITE");
+            applog(LOG_WARNING, "%s", "[PASSED]");
+            
+            applog(LOG_WARNING, "%s", "waiting for core responses...");
 			
 			while (serial_read(fd, buf, 8) == 8)
 			{
 				
 				const uint8_t clsid = buf[7];
 				if (clsid >= futurebit_max_clusters_per_chip)
-					applog(LOG_DEBUG, "%s: Bad %s id (%u) during scan of %s chip %u", futurebit_drv.dname, "cluster", clsid, devpath, i);
+					applog(LOG_WARNING, "%s: Bad %s id (%u) during scan of %s chip %u", futurebit_drv.dname, "cluster", clsid, devpath, i);
 				const uint8_t coreid = buf[6];
 				if (coreid >= futurebit_max_cores_per_cluster)
-					applog(LOG_DEBUG, "%s: Bad %s id (%u) during scan of %s chip %u", futurebit_drv.dname, "core", coreid, devpath, i);
+					applog(LOG_WARNING, "%s: Bad %s id (%u) during scan of %s chip %u", futurebit_drv.dname, "core", coreid, devpath, i);
 				
 				if (buf[0] != 0xd9 || buf[1] != 0xeb || buf[2] != 0x86 || buf[3] != 0x63) {
 					//chips[i].chip_good[clsid][coreid] = false;
-					applog(LOG_DEBUG, "%s: Bad %s at core (%u) during scan of %s chip %u cluster %u", futurebit_drv.dname, "nonce", coreid, devpath, i, clsid);
+					applog(LOG_WARNING, "%s: Bad %s at core (%u) during scan of %s chip %u cluster %u", futurebit_drv.dname, "nonce", coreid, devpath, i, clsid);
 				} else {
 					++total_cores;
 					chips[i].chip_mask[clsid] |= (1 << coreid);
@@ -342,13 +363,21 @@ bool futurebit_detect_one(const char * const devpath)
 		}
 	}
     
-	applog(LOG_DEBUG, "%s: Identified %d cores on %s", futurebit_drv.dname, total_cores, devpath);
+	applog(LOG_WARNING, "Identified %d out of 54 cores", total_cores);
 	
     if (total_cores == 0)
-		goto err;
+		return_via_applog(err, , LOG_WARNING, "%s", "[FAILED] NO ASIC RESPONSE");
+    else if (total_cores == 54)
+        applog(LOG_WARNING, "%s", "[PASSED]");
+    else if (total_cores < 45)
+        return_via_applog(err, , LOG_WARNING, "%s", "[FAILED] LESS THAN 45 HEALTHY CORES");
+    else
+        applog(LOG_WARNING, "%s", "[WARNING] FEW CORES DEAD");
 	
 	futurebit_reset_board(fd);
-	
+    
+    applog(LOG_WARNING, "%s", "writing cluster registers");
+	cgsleep_ms(500);
 	// config nonce ranges per cluster based on core responses
 	unsigned mutiple = FUTUREBIT_MAX_NONCE / total_cores;
 	uint32_t n_offset = 0x00000000;
@@ -365,7 +394,7 @@ bool futurebit_detect_one(const char * const devpath)
         //cgsleep_ms(50);
 		futurebit_set_diag_mode(chip, false);
 		if (!futurebit_init_pll(fd, chip))
-			return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "init PLL", devpath);
+			return_via_applog(err, , LOG_WARNING, "%s", "[FAILED] ASIC REGISTER WRITE");
 		cgsleep_ms(50);
         
 		for (unsigned x = 0; x < futurebit_max_clusters_per_chip; ++x) {
@@ -374,10 +403,10 @@ bool futurebit_detect_one(const char * const devpath)
 			uint16_t core_mask = chips[i].chip_mask[x];
 			chips[i].clst_offset[x] = n_offset;
 			
-			applog(LOG_DEBUG, "OFFSET %u MASK %u CHIP %u CLUSTER %u", n_offset, core_mask, i, x);
+			//applog(LOG_DEBUG, "OFFSET %u MASK %u CHIP %u CLUSTER %u", n_offset, core_mask, i, x);
 			
 			if (!futurebit_write_cluster_reg(fd, chip, core_mask, n_offset, x))
-				return_via_applog(err, , LOG_DEBUG, "%s: Failed to (%s) %s", futurebit_drv.dname, "send config register", devpath);
+				return_via_applog(err, , LOG_WARNING, "%s", "[FAILED] ASIC REG WRITE");
 			
 			for (unsigned z = 0; z < 15; ++z) {
 				if (core_mask & 0x0001)
@@ -391,29 +420,19 @@ bool futurebit_detect_one(const char * const devpath)
 		}
 	}
 	
-	if (serial_claim_v(devpath, &futurebit_drv))
-		goto err;
-	
-	//serial_close(fd);
-	struct cgpu_info * const cgpu = malloc(sizeof(*cgpu));
-	*cgpu = (struct cgpu_info){
-		.drv = &futurebit_drv,
-		.device_path = strdup(devpath),
-		.deven = DEV_ENABLED,
-		.procs = 1,
-		.threads = 1,
-		.device_data = chips,
-	};
-	// NOTE: Xcode's clang has a bug where it cannot find fields inside anonymous unions (more details in fpgautils)
-	cgpu->device_fd = fd;
-	
-	return add_cgpu(cgpu);
+    applog(LOG_WARNING, "%s", "[PASSED]");
+    
+    applog(LOG_WARNING, "%s", "All tests PASSED...shutting down");
+    
+    futurebit_reset_board(fd);
+    exit();
 
 err:
 	if (fd >= 0)
 		serial_close(fd);
 	free(chips);
-	return false;
+    applog(LOG_WARNING, "%s", "Testing FAILED...shutting down");
+    exit();
 }
 
 /*
