@@ -268,7 +268,7 @@ bool futurebit_detect_one(const char * const devpath)
     cgsleep_ms(500);
     struct futurebit_chip *chips = NULL;
     unsigned total_cores = 0;
-    struct termios   options;
+    //struct termios   options;
     
     applog(LOG_WARNING, "%s", "Testing UART CP2103 chip...");
     cgsleep_ms(100);
@@ -420,14 +420,14 @@ bool futurebit_detect_one(const char * const devpath)
     applog(LOG_WARNING, "%s", "All tests PASSED...shutting down");
     
     futurebit_reset_board(fd);
-    exit();
+    exit(0);
 
 err:
 	if (fd >= 0)
 		serial_close(fd);
 	free(chips);
     applog(LOG_WARNING, "%s", "Testing FAILED...shutting down");
-    exit();
+    exit(0);
 }
 
 /*
