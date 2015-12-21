@@ -18,11 +18,6 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <libusb.h>
-//#include <fcntl.h>
-//#include <stropts.h>
-#include <termios.h>
-#include <sys/ioctl.h>
-
 #include "deviceapi.h"
 #include "logging.h"
 #include "lowlevel.h"
