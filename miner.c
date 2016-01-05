@@ -11661,7 +11661,10 @@ void bfg_watchdog(struct cgpu_info * const cgpu, struct timeval * const tvp_now)
 			
 			/* Thread is disabled */
 			if (*denable == DEV_DISABLED)
-				return;
+            {
+                 applog(LOG_DEBUG, "WATCHDOG DISABLE RETURN>>>>>>>>>>>>>>>>>>>");
+                return;
+            }
 			else
 			if (*denable == DEV_RECOVER_ERR) {
 				if (opt_restart && timer_elapsed(&cgpu->tv_device_last_not_well, NULL) > cgpu->reinit_backoff) {
@@ -11671,6 +11674,7 @@ void bfg_watchdog(struct cgpu_info * const cgpu, struct timeval * const tvp_now)
 						cgpu->reinit_backoff *= 2;
 					device_recovered(cgpu);
 				}
+                applog(LOG_DEBUG, "WATCHDOG RECOVER RETURN>>>>>>>>>>>>>>>>>>>");
 				return;
 			}
 			else
@@ -11681,6 +11685,7 @@ void bfg_watchdog(struct cgpu_info * const cgpu, struct timeval * const tvp_now)
 					device_recovered(cgpu);
 				}
 				dev_error_update(cgpu, REASON_DEV_THERMAL_CUTOFF);
+                applog(LOG_DEBUG, "WATCHDOG TEMP RETURN>>>>>>>>>>>>>>>>>>>");
 				return;
 			}
 			else
@@ -11707,6 +11712,7 @@ void bfg_watchdog(struct cgpu_info * const cgpu, struct timeval * const tvp_now)
 						cgpu->status = LIFE_WAIT;
 					}
 				}
+                applog(LOG_DEBUG, "WATCHDOG GETWORK RETURN>>>>>>>>>>>>>>>>>>>");
 				return;
 			}
 			else if (cgpu->status == LIFE_WAIT)
