@@ -11722,7 +11722,7 @@ void bfg_watchdog(struct cgpu_info * const cgpu, struct timeval * const tvp_now)
 			if (!strcmp(cgpu->drv->dname, "cpu"))
 				return;
 #endif
-            applog(LOG_DEBUG, "WATCHDOG GOT HERE RETURN>>>>>>>>>>>>>>>>>>>");
+            applog(LOG_DEBUG, "WATCHDOG GOT TIME: %d, %d", tvp_now->tv_sec, thr->last.tv_sec );
 			if (cgpu->status != LIFE_WELL && (tvp_now->tv_sec - thr->last.tv_sec < WATCHDOG_SICK_TIME)) {
 				if (likely(cgpu->status != LIFE_INIT && cgpu->status != LIFE_INIT2))
 				applog(LOG_ERR, "%s: Recovered, declaring WELL!", dev_str);
