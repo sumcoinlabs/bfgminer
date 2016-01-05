@@ -11550,6 +11550,7 @@ void drv_set_defaults(const struct device_drv * const drv, const void *datap, vo
 
 static void *watchdog_thread(void __maybe_unused *userdata)
 {
+    applog(LOG_DEBUG, "WATCHDOG MAIN THREAD ENDTRY");
 	const unsigned int interval = WATCHDOG_INTERVAL;
 	struct timeval zero_tv;
 
@@ -11640,6 +11641,7 @@ static void *watchdog_thread(void __maybe_unused *userdata)
 
 void bfg_watchdog(struct cgpu_info * const cgpu, struct timeval * const tvp_now)
 {
+            applog(LOG_DEBUG, "WATCHDOG CALLED>>>>>>>>>>>>>>>>>>>");
 			struct thr_info *thr = cgpu->thr[0];
 			enum dev_enable *denable;
 			char *dev_str = cgpu->proc_repr;
