@@ -458,11 +458,11 @@ void futurebit_submit_nonce(struct thr_info * const thr, const uint8_t buf[8], s
     double hashes_per_ms = total_hashes/elapsed_ms;
     uint64_t hashes = hashes_per_ms * ms_tdiff(&now_tv, &thr->_tv_last_hashes_done_call);
     
-    if(hashes_per_ms < 1500)
+    if(hashes_per_ms < 1500 && hashes < 100000000)
         hashes_done2(thr, hashes, NULL);
     else
-        hashes_done2(thr, 600 * ms_tdiff(&now_tv, &thr->_tv_last_hashes_done_call), NULL);
-        
+        hashes_done2(thr, 100000, NULL);
+    
         applog(LOG_DEBUG, "HASHES %lld HASHES_PER_MS %f TOTAL HASHES %f ELAPSEDMS %d ELAPSEDSINCELAST %d", hashes, hashes_per_ms, total_hashes, elapsed_ms, ms_tdiff(&now_tv, &thr->_tv_last_hashes_done_call));
         
     
