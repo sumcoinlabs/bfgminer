@@ -1,5 +1,5 @@
 #
-# Copyright 2013-2014 Luke Dashjr
+# Copyright 2013-2017 Luke Dashjr
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bfgminer
 PKG_TITLE:=BFGMiner
-PKG_VERSION:=5.4.2
+PKG_VERSION:=5.5.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).txz
@@ -42,7 +42,7 @@ endef
 define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
 	TITLE:=$(PKG_TITLE) (Bitcoin miner)
-	DEPENDS:=+libc +libcurl +libpthread +jansson +PACKAGE_$(PKG_NAME)_libevent:libevent2 +PACKAGE_$(PKG_NAME)_curses:libncurses +PACKAGE_$(PKG_NAME)_libmicrohttpd:libmicrohttpd +PACKAGE_$(PKG_NAME)_libusb:libusb-1.0
+	DEPENDS:=+libc +libcurl +libpthread +jansson +PACKAGE_$(PKG_NAME)_libevent:libevent2 +PACKAGE_$(PKG_NAME)_libevent:libevent2-pthreads +PACKAGE_$(PKG_NAME)_curses:libncurses +PACKAGE_$(PKG_NAME)_libmicrohttpd:libmicrohttpd +PACKAGE_$(PKG_NAME)_libusb:libusb-1.0
 endef
 
 define Package/$(PKG_NAME)/description

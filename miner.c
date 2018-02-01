@@ -1,6 +1,6 @@
 /*
  * Copyright 2011-2014 Con Kolivas
- * Copyright 2011-2016 Luke Dashjr
+ * Copyright 2011-2017 Luke Dashjr
  * Copyright 2014 Nate Woolls
  * Copyright 2012-2014 Andrew Smith
  * Copyright 2010 Jeff Garzik
@@ -2701,7 +2701,12 @@ static struct opt_table opt_config_table[] = {
 #endif
 	OPT_WITH_ARG("--set-device|--set",
 			opt_string_elist_add, NULL, &opt_set_device_list,
-			"Set default parameters on devices; eg, NFY:osc6_bits=50"),
+			"Set default parameters on devices; eg"
+			", NFY:osc6_bits=50"
+			", bfl:voltage=<value>"
+			", compac:clock=<value>"
+	),
+
 #if defined(USE_SCRYPT) && defined(USE_OPENCL)
 	OPT_WITH_ARG("--shaders",
 		     set_shaders, NULL, NULL,
@@ -3432,22 +3437,27 @@ void refresh_bitcoind_address(struct mining_goal_info * const goal, const bool f
 			json_decref(json);
 			continue;
 		}
+		cg_ilock(&control_lock);
 		if (goal->generation_script)
 		{
 			if (bytes_eq(&newscript, goal->generation_script))
 			{
+				cg_iunlock(&control_lock);
 				applog(LOG_DEBUG, "Pool %d returned coinbase address already in use (%s)", pool->pool_no, s);
 				json_decref(json);
 				break;
 			}
+			cg_ulock(&control_lock);
 		}
 		else
 		{
+			cg_ulock(&control_lock);
 			goal->generation_script = malloc(sizeof(*goal->generation_script));
 			bytes_init(goal->generation_script);
 		}
 		bytes_assimilate(goal->generation_script, &newscript);
 		coinbase_script_block_id = blkchain->currentblk->block_id;
+		cg_wunlock(&control_lock);
 		applog(LOG_NOTICE, "Now using coinbase address %s, provided by pool %d", s, pool->pool_no);
 		json_decref(json);
 		break;
@@ -3588,6 +3598,7 @@ static bool work_decode(struct pool *pool, struct work *work, json_t *val)
 		};
 
 		const struct blktmpl_longpoll_req *lp;
+		mutex_lock(&pool->pool_lock);
 		if ((lp = blktmpl_get_longpoll(tmpl)) && ((!pool->lp_id) || strcmp(lp->id, pool->lp_id))) {
 			free(pool->lp_id);
 			pool->lp_id = strdup(lp->id);
@@ -3601,6 +3612,7 @@ static bool work_decode(struct pool *pool, struct work *work, json_t *val)
 			}
 #endif
 		}
+		mutex_unlock(&pool->pool_lock);
 	}
 	else
 	if (unlikely(!jobj_binary(res_val, "data", work->data, sizeof(work->data), true))) {
@@ -6382,8 +6394,6 @@ static void push_curl_entry(struct curl_ent *ce, struct pool *pool)
 	mutex_unlock(&pool->pool_lock);
 }
 
-bool stale_work(struct work *work, bool share);
-
 static inline bool should_roll(struct work *work)
 {
 	struct timeval now;
@@ -6577,7 +6587,7 @@ static void pool_died(struct pool *pool)
 		mutex_unlock(&lp_lock);
 }
 
-bool stale_work(struct work *work, bool share)
+bool stale_work2(struct work * const work, const bool share, const bool have_pool_data_lock)
 {
 	unsigned work_expiry;
 	struct pool *pool;
@@ -6650,10 +6660,14 @@ bool stale_work(struct work *work, bool share)
 
 		same_job = true;
 
-		cg_rlock(&pool->data_lock);
+		if (!have_pool_data_lock) {
+			cg_rlock(&pool->data_lock);
+		}
 		if (strcmp(work->job_id, pool->swork.job_id))
 			same_job = false;
-		cg_runlock(&pool->data_lock);
+		if (!have_pool_data_lock) {
+			cg_runlock(&pool->data_lock);
+		}
 
 		if (!same_job) {
 			applog(LOG_DEBUG, "Work stale due to stratum job_id mismatch");
@@ -12691,7 +12705,7 @@ void *probe_device_thread(void *p)
 	bool request_rescan = false;
 	
 	{
-		char threadname[5 + strlen(info->devid) + 1];
+		char threadname[6 + strlen(info->devid) + 1];
 		sprintf(threadname, "probe_%s", info->devid);
 		RenameThread(threadname);
 	}
