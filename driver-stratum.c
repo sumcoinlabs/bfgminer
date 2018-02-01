@@ -139,7 +139,7 @@ fail:
 		struct work work;
 		work2d_gen_dummy_work_for_stale_check(&work, &pool->swork, &tv_now, NULL);
 		
-		const bool is_stale = stale_work(&work, false);
+		const bool is_stale = stale_work2(&work, false, true);
 		
 		clean_work(&work);
 		
@@ -791,6 +791,7 @@ const char *stratumsrv_init_diff(struct cgpu_info * const proc, const char * con
 	if (nv <= minimum_pdiff)
 		nv = minimum_pdiff;
 	conn->desired_share_pdiff = nv;
+	conn->desired_default_share_pdiff = false;
 	
 	return NULL;
 }
