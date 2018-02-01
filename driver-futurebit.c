@@ -58,6 +58,7 @@ struct futurebit_chip {
     unsigned active_cores;
     unsigned freq;
     uint32_t last_nonce;
+    bool first_work;
 };
 
 static
@@ -68,6 +69,7 @@ void futurebit_chip_init(struct futurebit_chip * const chip, const uint8_t chipi
         .active_cores = 64,
         .freq = FUTUREBIT_DEFAULT_FREQUENCY,
         .last_nonce = 0x00000000,
+        .first_work = true,
     };
 }
 
@@ -632,8 +634,11 @@ int64_t futurebit_scanhash(struct thr_info *thr, struct work *work, int64_t __ma
     timer_set_now(&start_tv);
     timer_set_delay_from_now(&last_submit_tv, 10*1000000);
 
-    cgsleep_ms(device->device_id*10 + 50);  //add small delay for devices > 0 so all devices dont start up at once
-
+    if(chips[0].first_work){
+        cgsleep_ms(device->device_id*50 + 100);//add small delay for devices > 0 so all devices dont start up at once
+        chips[0].first_work = false;
+    }
+    
     if (!futurebit_send_work(thr, work)) {
         applog(LOG_DEBUG, "Failed to start job");
         dev_error(device, REASON_DEV_COMMS_ERROR);
