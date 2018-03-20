@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 John Stefanopoulos
+ * Copyright 2018 John Stefanopoulos
  * Copyright 2014-2015 Luke Dashjr
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -694,6 +694,26 @@ bool futurebit_lowl_probe(const struct lowlevel_device_info * const info)
 }
 
 static
+void futurebit_core_disable(struct thr_info * const thr)
+{
+    struct cgpu_info *device = thr->cgpu;
+    
+    futurebit_soft_reset(device->device_fd)
+    futurebit_reset_board(device->device_fd);
+}
+
+static
+void futurebit_core_enable(struct thr_info * const thr)
+{
+    struct cgpu_info *device = thr->cgpu;
+    struct futurebit_chip *chips = device->device_data;
+    
+    futurebit_reset_board(device->device_fd);
+    futurebit_config_all_chip(device->device_fd, chips[0].freq);
+    futurebit_pull_up_payload(device->device_fd);
+}
+
+static
 void futurebit_thread_shutdown(struct thr_info *thr)
 {
     struct cgpu_info *device = thr->cgpu;
@@ -745,6 +765,10 @@ struct device_drv futurebit_drv = {
 
     // scanhash mining hooks
     .scanhash = futurebit_scanhash,
+    
+    //enable/disable functions
+    .thread_disable = futurebit_core_disable,
+    .thread_enable  = futurebit_core_enable,
 
     // teardown device
     .thread_shutdown = futurebit_thread_shutdown,
