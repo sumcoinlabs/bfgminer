@@ -698,7 +698,7 @@ void futurebit_core_disable(struct thr_info * const thr)
 {
     struct cgpu_info *device = thr->cgpu;
     
-    futurebit_soft_reset(device->device_fd)
+    futurebit_soft_reset(device->device_fd);
     futurebit_reset_board(device->device_fd);
 }
 
