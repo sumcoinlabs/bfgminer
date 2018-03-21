@@ -621,7 +621,10 @@ int64_t futurebit_scanhash(struct thr_info *thr, struct work *work, int64_t __ma
     int fd = device->device_fd;
     struct futurebit_chip *chips = device->device_data;
     struct timeval start_tv, nonce_range_tv, last_submit_tv, now_tv;
-
+    
+    if (device->deven == DEV_DISABLED)
+        return 0;
+    
 
     // amount of time it takes this device to scan a nonce range:
     uint32_t nonce_full_range_sec = FUTUREBIT_HASH_SPEED * FUTUREBIT_DEFAULT_FREQUENCY / chips[0].freq * 64.0 / chips[0].active_cores;
@@ -653,7 +656,8 @@ int64_t futurebit_scanhash(struct thr_info *thr, struct work *work, int64_t __ma
     while (!thr->work_restart                                               // true when new work is available (miner.c)
            && !(no_asic_response = timer_passed(&last_submit_tv, NULL))     // check for core stall
            && ((read = serial_read(fd, buf, 8)) >= 0)                       // only check for failure - allow 0 bytes
-           && !(range_nearly_scanned = timer_passed(&nonce_range_tv, NULL)))// true when we've nearly scanned a nonce range
+           && !(range_nearly_scanned = timer_passed(&nonce_range_tv, NULL)) // true when we've nearly scanned a nonce range
+           && !(device->deven == DEV_DISABLED))                             // device got disabled
     {
         if (read == 0)
             continue;
@@ -679,6 +683,7 @@ int64_t futurebit_scanhash(struct thr_info *thr, struct work *work, int64_t __ma
         applog(LOG_ERR, "%s: Failed to read result", device->dev_repr);
         dev_error(device, REASON_DEV_COMMS_ERROR);
     }
+    
 
     return 0;
 }
@@ -700,6 +705,7 @@ void futurebit_core_disable(struct thr_info * const thr)
     
     futurebit_soft_reset(device->device_fd);
     futurebit_reset_board(device->device_fd);
+    applog(LOG_ERR, "%s: has been Disabled", device->dev_repr);
 }
 
 static
@@ -711,6 +717,7 @@ void futurebit_core_enable(struct thr_info * const thr)
     futurebit_reset_board(device->device_fd);
     futurebit_config_all_chip(device->device_fd, chips[0].freq);
     futurebit_pull_up_payload(device->device_fd);
+    applog(LOG_ERR, "%s: has been Enabled", device->dev_repr);
 }
 
 static
